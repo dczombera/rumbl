@@ -5,7 +5,7 @@ defmodule Rumbl.TestHelpers do
   def insert_user(attrs \\ %{}) do
     changes = Map.merge(%{
       name: "Han Solo",
-      username: "smuggler#{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      username: "smuggler#{Base.encode64(:crypto.strong_rand_bytes(8))}",
       password: "WookieLover"
     }, attrs)
 
