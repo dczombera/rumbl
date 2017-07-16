@@ -6,10 +6,12 @@ defmodule Rumbl.ContentCreation.Video do
   alias Rumbl.ContentCreation.User
   alias Rumbl.ContentCreation.Category
 
+  @primary_key {:id, Rumbl.Permalink, autogenerate: true}
   schema "videos" do
     field :description, :string
     field :title, :string
     field :url, :string
+    field :slug, :string
 
     belongs_to :user, User
     belongs_to :category, Category
@@ -21,6 +23,7 @@ defmodule Rumbl.ContentCreation.Video do
   def changeset(%Video{} = video, attrs) do
     video
     |> cast(attrs, [:url, :title, :description, :category_id])
+    |> slugify_title()
     |> validate_required([:url, :title, :description])
     |> assoc_constraint(:category)
   end
@@ -29,5 +32,25 @@ defmodule Rumbl.ContentCreation.Video do
     user
     |> build_assoc(:videos, %{})
     |> changeset(attrs)
+  end
+
+  defp slugify_title(changeset) do
+    if title = get_change(changeset, :title) do
+      put_change(changeset, :slug, slugify(title))
+    else
+      changeset
+    end
+  end
+
+  defp slugify(str) do
+   str
+   |> String.downcase
+   |> String.replace(~r/[^\w-]+/u, "-")
+  end
+
+  defimpl Phoenix.Param, for: Video do
+    def to_param(%{slug: slug, id: id}) do
+      "#{id}-#{slug}"
+    end
   end
 end
