@@ -3,6 +3,7 @@ defmodule Rumbl.ContentCreation.User do
   import Ecto.Changeset
   alias Rumbl.ContentCreation.User
   alias Rumbl.ContentCreation.Video
+  alias Rumbl.ContentCreation.Annotation
   alias Comeonin.Bcrypt
 
   schema "users" do
@@ -12,6 +13,7 @@ defmodule Rumbl.ContentCreation.User do
     field :password_hash, :string
 
     has_many :videos, Video
+    has_many :annotations, Annotation
 
     timestamps()
   end

@@ -4,6 +4,7 @@ defmodule Rumbl.ContentCreation.Video do
   import Ecto, only: [build_assoc: 3]
   alias Rumbl.ContentCreation.Video
   alias Rumbl.ContentCreation.User
+  alias Rumbl.ContentCreation.Annotation
   alias Rumbl.ContentCreation.Category
 
   @primary_key {:id, Rumbl.Permalink, autogenerate: true}
@@ -12,6 +13,8 @@ defmodule Rumbl.ContentCreation.Video do
     field :title, :string
     field :url, :string
     field :slug, :string
+
+    has_many :annotations, Annotation
 
     belongs_to :user, User
     belongs_to :category, Category

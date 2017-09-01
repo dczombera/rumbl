@@ -4,12 +4,13 @@ defmodule Rumbl.ContentCreation do
   """
 
   import Ecto.Query, warn: false
-  import Ecto, only: [assoc: 2]
+  import Ecto, only: [assoc: 2, build_assoc: 3]
 
   alias Rumbl.Repo
   alias Rumbl.ContentCreation.User
   alias Rumbl.ContentCreation.Video
   alias Rumbl.ContentCreation.Category
+  alias Rumbl.ContentCreation.Annotation
 
   @doc """
   Returns the list of users.
@@ -151,6 +152,16 @@ defmodule Rumbl.ContentCreation do
   def get_video!(id), do: Repo.get!(Video, id)
 
   def get_user_video!(user, id), do: Repo.get!(user_videos(user), id)
+   
+  def get_video_annotations_for_client(video \\ %Video{}, starting_from_id) do
+    Repo.all(
+      from a in assoc(video, :annotations),
+        where:    a.id > ^starting_from_id,
+        order_by: [asc: a.at, asc: a.id],
+        limit:    200,
+        preload:  [:user]
+    )
+  end
 
   @doc """
   Creates a video.
@@ -246,5 +257,20 @@ defmodule Rumbl.ContentCreation do
 
   def categories_names_and_ids(query) do
     Category.names_and_ids(query)
+  end
+
+  #
+  ## ANNOTATION 
+  #
+  
+  def create_annotation_with_associations(attrs \\ %{}, user \\ %User{}, video_id \\ nil) do
+    user
+    |> build_assoc(:annotations, video_id: video_id)
+    |> change_annotation(attrs)
+    |> Repo.insert
+  end
+
+  def change_annotation(%Annotation{} = annotation, %{} = attrs) do
+    Annotation.changeset(annotation, attrs)
   end
 end
